@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html ng-app="craftApp">
+
+<head>
+<title>Art & Craft World</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:linear-gradient(120deg,#ff9a9e,#fad0c4);
+min-height:100vh;
+}
+
+header{
+background:#4a148c;
+color:white;
+padding:25px;
+text-align:center;
+letter-spacing:2px;
+}
+
+nav{
+background:#7b1fa2;
+padding:12px;
+text-align:center;
+}
+
+nav button{
+margin:5px;
+padding:10px 20px;
+border:none;
+border-radius:20px;
+background:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+nav button:hover{
+background:#ffd54f;
+transform:scale(1.05);
+}
+
+.container{
+padding:30px;
+text-align:center;
+}
+
+.gallery{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:20px;
+}
+
+.card{
+width:220px;
+background:white;
+margin:10px;
+padding:15px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-10px);
+box-shadow:0 10px 25px rgba(0,0,0,0.4);
+}
+
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
+border-radius:10px;
+}
+
+.like{
+background:#ff4081;
+color:white;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+border-radius:5px;
+margin:3px;
+}
+
+.delete{
+background:#e53935;
+color:white;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+border-radius:5px;
+margin:3px;
+}
+
+.recover{
+background:#43a047;
+color:white;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+border-radius:5px;
+margin:3px;
+}
+
+.refresh{
+background:#1e88e5;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:5px;
+margin:10px;
+cursor:pointer;
+}
+
+input{
+padding:8px;
+border-radius:5px;
+border:1px solid gray;
+width:250px;
+}
+
+.form-box{
+background:white;
+padding:25px;
+width:320px;
+margin:auto;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+}
+
+footer{
+background:#4a148c;
+color:white;
+text-align:center;
+padding:10px;
+margin-top:30px;
+}
+
+</style>
+</head>
+
+
+<body ng-controller="mainController">
+
+<header>
+<h1>🎨 Art & Craft World</h1>
+<p>Explore Creativity and Handmade Crafts</p>
+</header>
+
+
+<!-- NAVBAR -->
+
+<nav>
+<button ng-click="page='home'">Home</button>
+<button ng-click="page='gallery'">Gallery</button>
+<button ng-click="page='trash'">Trash</button>
+<button ng-click="page='contact'">Contact</button>
+<button ng-click="page='login'">Login</button>
+<button ng-click="page='register'">Register</button>
+</nav>
+
+
+<div class="container">
+
+<!-- HOME -->
+
+<div ng-show="page=='home'">
+
+<h2>Welcome to Art & Craft</h2>
+
+<p>
+Art and craft help people express creativity and imagination.
+Explore beautiful handmade craft ideas and artworks.
+</p>
+
+<img src="https://img.freepik.com/free-vector/font-design-word-art-craft-with-colorful-crayons_1308-44267.jpg" width="700">
+
+</div>
+
+
+
+<!-- LOGIN PAGE -->
+
+<div ng-show="page=='login'">
+
+<div class="form-box">
+
+<h2>Login</h2>
+
+<input type="text" ng-model="login.username" placeholder="Username"><br><br>
+
+<input type="password" ng-model="login.password" placeholder="Password"><br><br>
+
+<button ng-click="loginUser()">Login</button>
+
+<p style="color:green" ng-if="loginSuccess">Login Successful</p>
+
+</div>
+
+</div>
+
+
+
+<!-- REGISTRATION PAGE -->
+
+<div ng-show="page=='register'">
+
+<div class="form-box">
+
+<h2>Registration</h2>
+
+<input type="text" ng-model="register.name" placeholder="Full Name"><br><br>
+
+<input type="email" ng-model="register.email" placeholder="Email"><br><br>
+
+<input type="password" ng-model="register.password" placeholder="Password"><br><br>
+
+<button ng-click="registerUser()">Register</button>
+
+<p style="color:green" ng-if="registerSuccess">
+Registration Successful
+</p>
+
+</div>
+
+</div>
+
+
+
+<!-- GALLERY -->
+
+<div ng-show="page=='gallery'">
+
+<h2>Craft Gallery</h2>
+
+<p>Total Crafts: {{crafts.length}}</p>
+
+<input type="text" ng-model="search" placeholder="Search craft">
+
+<br>
+
+<button class="refresh" ng-click="resetLikes()">Reset Likes</button>
+
+<div class="gallery">
+
+<div class="card" ng-repeat="item in crafts | filter:search">
+
+<img ng-src="{{item.image}}">
+
+<h3>{{item.name}}</h3>
+
+<p>{{item.desc}}</p>
+
+<p>❤️ Likes: {{item.likes}}</p>
+
+<button class="like" ng-click="item.likes=item.likes+1">Like</button>
+
+<button class="delete" ng-click="removeCraft($index)">Delete</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- TRASH -->
+
+<div ng-show="page=='trash'">
+
+<h2>🗑 Trash - Deleted Crafts</h2>
+
+<p>Total Deleted: {{trash.length}}</p>
+
+<div class="gallery">
+
+<div class="card" ng-repeat="item in trash">
+
+<img ng-src="{{item.image}}">
+
+<h3>{{item.name}}</h3>
+
+<p>{{item.desc}}</p>
+
+<button class="recover" ng-click="recoverCraft($index)">
+Recover
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- CONTACT -->
+
+<div ng-show="page=='contact'">
+
+<h2>Contact Us</h2>
+
+<form ng-submit="submitForm()">
+
+<input type="text" ng-model="contact.name" placeholder="Your Name" required><br><br>
+
+<input type="email" ng-model="contact.email" placeholder="Your Email" required><br><br>
+
+<input type="text" ng-model="contact.message" placeholder="Your Message" required><br><br>
+
+<button type="submit">Submit</button>
+
+</form>
+
+<p style="color:green" ng-if="submitted">
+✅ Thank you! Your message has been submitted.
+</p>
+
+</div>
+
+</div>
+
+
+<footer>
+© 2026 Art & Craft Web Application
+</footer>
+
+
+
+<script>
+
+var app = angular.module("craftApp",[]);
+
+app.controller("mainController",function($scope){
+
+$scope.page="home";
+
+$scope.trash=[];
+$scope.submitted=false;
+$scope.contact={};
+
+$scope.loginSuccess=false;
+$scope.registerSuccess=false;
+
+
+/* LOGIN */
+
+$scope.loginUser=function(){
+
+$scope.loginSuccess=true;
+
+};
+
+
+/* REGISTER */
+
+$scope.registerUser=function(){
+
+$scope.registerSuccess=true;
+
+};
+
+
+/* CRAFT DATA */
+
+$scope.crafts=[
+
+{
+name:"Paper Flower",
+desc:"Beautiful handmade paper flower craft.",
+image:"https://content.instructables.com/FNB/955F/HRI99J7Z/FNB955FHRI99J7Z.jpg",
+likes:0
+},
+
+{
+name:"Clay Pot Art",
+desc:"Creative clay pot painting craft.",
+image:"https://5.imimg.com/data5/SELLER/Default/2022/5/EP/SW/JY/3297603/1-63--500x500.jpg",
+likes:0
+},
+
+{
+name:"Wool Craft",
+desc:"Colorful wool handmade decoration.",
+image:"https://cdn.shopify.com/s/files/1/0628/2235/1107/files/embroidery-art_600x600.jpg?v=1711306284",
+likes:0
+},
+
+{
+name:"Bottle Painting",
+desc:"Recycled bottle turned into art.",
+image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuQXyYpWYtIDBkpr0RXtr2BbUjFTklKdvSwQ&s",
+likes:0
+},
+
+{
+name:"Crochet Craft",
+desc:"Handmade crochet decorative items.",
+image:"https://i.ytimg.com/vi/I7Fidgz-pdo/maxresdefault.jpg",
+likes:0
+}
+
+];
+
+
+/* DELETE */
+
+$scope.removeCraft=function(index){
+
+$scope.trash.push($scope.crafts[index]);
+$scope.crafts.splice(index,1);
+
+};
+
+
+/* RECOVER */
+
+$scope.recoverCraft=function(index){
+
+$scope.crafts.push($scope.trash[index]);
+$scope.trash.splice(index,1);
+
+};
+
+
+/* RESET LIKES */
+
+$scope.resetLikes=function(){
+
+angular.forEach($scope.crafts,function(item){
+item.likes=0;
+});
+
+};
+
+
+/* CONTACT FORM */
+
+$scope.submitForm=function(){
+
+$scope.submitted=true;
+$scope.contact={};
+
+};
+
+});
+
+</script>
+
+</body>
+</html>
